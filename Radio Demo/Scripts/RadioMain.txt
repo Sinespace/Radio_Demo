@@ -1,0 +1,38 @@
+StreamPlayer = Space.Host.GetReference('Stream Player')
+ifStreamAddress = Space.Host.GetReference('ifStreamAddress')
+
+function UpdateRadio()
+
+  StreamAddress = ifStreamAddress.UIInputField.Text
+  Space.Network.SetShardProperty('StoredStream', StreamAddress)
+  Space.Network.SendNetworkMessage('Radio Demo', {URL = StreamAddress})
+  PlayRadio(StreamAddress)
+
+end
+
+function PlayRadio(StreamAddress)
+
+  StreamPlayer.Radio.Stop()
+  StreamPlayer.Radio.PlayMP3Stream(StreamAddress)
+  StreamPlayer.Radio.Play()
+
+end
+
+function GetStream()
+
+  StreamAddress = Space.Network.GetShardProperty('StoredStream')
+  if StreamAddress == nil then StreamAddress = 'http://51.75.170.46:6191' end
+  ifStreamAddress.UIInputField.Text = StreamAddress
+  PlayRadio(StreamAddress)
+
+end
+
+function UserJoin()
+
+  coroutine.yield(5)
+  Space.Network.SubscribeToNetwork('Radio Demo', GetStream)
+  GetStream()
+
+end
+
+Space.Host.StartCoroutine(UserJoin)
